@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link rel="manifest" href="icons/site.webmanifest">
 </head>
 <body>
     <div class="main-container">
@@ -29,9 +29,9 @@
                 </div>
             </div>
 
-            <div class="form-content">
+            <div class="form-content" id="form-content-sortable">
                 <!-- Personal Info -->
-                <div class="form-block">
+                <div class="form-block" data-section-type="personal">
                     <h2><i class="fas fa-user"></i> Personal Info</h2>
                     <div class="linkedin-import">
                         <label for="linkedin-json-upload" class="upload-btn linkedin-btn"><i class="fab fa-linkedin"></i> Import from LinkedIn Data</label>
@@ -55,28 +55,37 @@
                     <input type="url" id="linkedin" placeholder="LinkedIn Profile or Website URL">
                 </div>
 
+                <!-- Social Media -->
+                <div class="form-block" data-section-type="social">
+                    <h2><i class="fas fa-share-alt"></i> Social Media</h2>
+                    <div id="social-media-fields"></div>
+                    <button type="button" class="add-btn" onclick="addSocialMedia()"><i class="fas fa-plus"></i> Add Social Link</button>
+                </div>
+
                 <!-- Education -->
-                <div class="form-block">
+                <div class="form-block" data-section-type="education">
                     <h2><i class="fas fa-graduation-cap"></i> Education</h2>
                     <div id="education-fields" class="sortable-list"></div>
                     <button type="button" class="add-btn" onclick="addEducation()"><i class="fas fa-plus"></i> Add Education</button>
                 </div>
 
                 <!-- Work Experience -->
-                <div class="form-block">
+                <div class="form-block" data-section-type="experience">
                     <h2><i class="fas fa-briefcase"></i> Work Experience</h2>
                     <div id="experience-fields" class="sortable-list"></div>
                     <button type="button" class="add-btn" onclick="addExperience()"><i class="fas fa-plus"></i> Add Experience</button>
                 </div>
 
                 <!-- Skills -->
-                <div class="form-block">
+                <div class="form-block" data-section-type="skills">
                     <h2><i class="fas fa-cogs"></i> Skills</h2>
                     <div class="skills-container">
                         <input type="text" id="skills-input" placeholder="Add a skill and press Enter">
                         <div id="skills-tags"></div>
                     </div>
                 </div>
+                <div id="custom-sections-container"></div>
+                <button type="button" class="add-btn" id="add-section-btn"><i class="fas fa-plus"></i> Add Custom Section</button>
             </div>
         </div>
 

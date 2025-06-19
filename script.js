@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFromLocalStorage();
     setupEventListeners();
     makeSortable();
+    makeSectionsSortable();
     generateResumeContent();
 });
 
@@ -49,6 +50,48 @@ function setupEventListeners() {
         generateResumeContent();
         saveToLocalStorage();
     });
+
+    document.getElementById('add-section-btn').addEventListener('click', () => {
+        const sectionName = prompt("Enter the name for the new section (e.g., Projects):");
+        if (sectionName) {
+            addCustomSection({ name: sectionName, items: [] });
+        }
+    });
+}
+
+function addCustomSection(section) {
+    const container = document.getElementById('custom-sections-container');
+    const sectionId = `custom-${Date.now()}`;
+    const newSection = document.createElement('div');
+    newSection.className = 'form-block';
+    newSection.id = sectionId;
+    newSection.innerHTML = `
+        <h2><i class="fas fa-star"></i> ${section.name} <button type="button" class="remove-btn" onclick="removeEntry('${sectionId}')"><i class="fas fa-trash"></i></button></h2>
+        <div id="${sectionId}-items" class="sortable-list"></div>
+        <button type="button" class="add-btn" onclick="addCustomSectionItem('${sectionId}')"><i class="fas fa-plus"></i> Add Item</button>
+    `;
+    container.appendChild(newSection);
+    section.items.forEach(item => addCustomSectionItem(sectionId, item));
+    makeSortable();
+    generateResumeContent();
+    saveToLocalStorage();
+}
+
+function addCustomSectionItem(sectionId, item = { title: '', description: '' }) {
+    const container = document.getElementById(`${sectionId}-items`);
+    const itemId = `item-${Date.now()}`;
+    const newItem = document.createElement('div');
+    newItem.className = 'sortable-item';
+    newItem.id = itemId;
+    newItem.draggable = true;
+    newItem.innerHTML = `
+        <i class="fas fa-grip-vertical drag-handle"></i>
+        <input type="text" class="item-title" placeholder="Title" value="${item.title}" required>
+        <textarea class="item-desc" placeholder="Description">${item.description}</textarea>
+        <button type="button" class="remove-btn" onclick="removeEntry('${itemId}')"><i class="fas fa-trash"></i></button>
+    `;
+    container.appendChild(newItem);
+    addInputListeners(newItem);
 }
 
 function addEducation(edu = { degree: '', institute: '', year: '' }) {
@@ -106,6 +149,21 @@ function removeEntry(entryId) {
     saveToLocalStorage();
 }
 
+function addSocialMedia(social = { platform: '', url: '' }) {
+    const container = document.getElementById('social-media-fields');
+    const entryId = `social-${Date.now()}`;
+    const newEntry = document.createElement('div');
+    newEntry.className = 'social-media-item';
+    newEntry.id = entryId;
+    newEntry.innerHTML = `
+        <input type="text" class="platform" placeholder="Platform (e.g., GitHub)" value="${social.platform}" required>
+        <input type="url" class="social-url" placeholder="URL" value="${social.url}" required>
+        <button type="button" class="remove-btn" onclick="removeEntry('${entryId}')"><i class="fas fa-trash"></i></button>
+    `;
+    container.appendChild(newEntry);
+    addInputListeners(newEntry);
+}
+
 function addSkill(skill) {
     if (skill && !skills.includes(skill)) {
         skills.push(skill);
@@ -159,6 +217,10 @@ function generateResumeContent() {
     const phone = document.getElementById('phone').value;
     const address = document.getElementById('address').value;
     const linkedin = document.getElementById('linkedin').value;
+    const socialMediaEntries = Array.from(document.querySelectorAll('#social-media-fields .social-media-item')).map(entry => ({
+        platform: entry.querySelector('.platform').value,
+        url: entry.querySelector('.social-url').value
+    }));
     const educationEntries = Array.from(document.querySelectorAll('#education-fields .sortable-item')).map(entry => ({
         degree: entry.querySelector('.degree').value,
         institute: entry.querySelector('.institute').value,
@@ -178,31 +240,91 @@ function generateResumeContent() {
 
     let resumeHTML = `
         <style>:root { --accent-color: ${accentColor}; }</style>
-        ${qrCodeHTML}
-        <div style="text-align: center; margin-bottom: 20px;">
-            <img src="${profilePicSrc}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color);">
-            <h3>${name}</h3>
-            <p>${email} | ${phone} | ${address}${linkedin ? ` | <a href="${linkedin}" target="_blank">LinkedIn</a>` : ''}</p>
-        </div>
-        <div>
-            <h4>Education</h4>
-            ${educationEntries.map(edu => `<p><strong>${edu.degree}</strong>, ${edu.institute} (${edu.year})</p>`).join('')}
-        </div>
-        <div>
-            <h4>Work Experience</h4>
-            ${experienceEntries.map(exp => `
-                <p><strong>${exp.role}</strong> at ${exp.company} (${exp.duration})</p>
-                <div style="margin-left: 20px;">${exp.desc.replace(/\n/g, '<br>')}</div>
-            `).join('')}
-        </div>
-        <div>
-            <h4>Skills</h4>
-            <ul style="list-style-type: disc; padding-left: 20px;">
-                ${skills.map(skill => `<li>${skill}</li>`).join('')}
-            </ul>
+        <div class="resume-container">
+            <div class="left-column">
+                <img src="${profilePicSrc}" class="profile-pic">
+                <div class="contact-info">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> ${email}</p>
+                    <p><i class="fas fa-phone"></i> ${phone}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${address}</p>
+                    ${linkedin ? `<p><i class="fab fa-linkedin"></i> <a href="${linkedin}" target="_blank">LinkedIn</a></p>` : ''}
+                    ${socialMediaEntries.map(social => `<p><i class="fas fa-globe"></i> <a href="${social.url}" target="_blank">${social.platform}</a></p>`).join('')}
+                </div>
+                <div class="skills-section">
+                    <h4>Skills</h4>
+                    <ul>
+                        ${skills.map(skill => `<li>${skill}</li>`).join('')}
+                    </ul>
+                </div>
+                ${qrCodeHTML ? `<div class="qr-code-section"><h4>QR Code</h4>${qrCodeHTML}</div>` : ''}
+            </div>
+            <div class="right-column">
+                <div class="header">
+                    <h1>${name}</h1>
+                </div>
+                <div id="resume-sections"></div>
+            </div>
         </div>
     `;
     document.getElementById('resume-template').innerHTML = resumeHTML;
+
+    const sectionOrder = Array.from(document.querySelectorAll('#form-content-sortable .form-block')).map(section => section.dataset.sectionType);
+    const resumeSectionsContainer = document.getElementById('resume-sections');
+    resumeSectionsContainer.innerHTML = '';
+
+    sectionOrder.forEach(sectionType => {
+        let sectionHTML = '';
+        switch (sectionType) {
+            case 'education':
+                sectionHTML = `
+                    <div class="section">
+                        <h2 class="section-title">Education</h2>
+                        ${educationEntries.map(edu => `
+                            <div class="item">
+                                <h3>${edu.degree}</h3>
+                                <p class="sub-details">${edu.institute} | ${edu.year}</p>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                break;
+            case 'experience':
+                sectionHTML = `
+                    <div class="section">
+                        <h2 class="section-title">Work Experience</h2>
+                        ${experienceEntries.map(exp => `
+                            <div class="item">
+                                <h3>${exp.role}</h3>
+                                <p class="sub-details">${exp.company} | ${exp.duration}</p>
+                                <p>${exp.desc.replace(/\n/g, '<br>')}</p>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                break;
+        }
+        resumeSectionsContainer.innerHTML += sectionHTML;
+    });
+
+    const customSections = Array.from(document.querySelectorAll('#custom-sections-container .form-block'));
+    customSections.forEach(section => {
+        const sectionName = section.querySelector('h2').innerText;
+        const items = Array.from(section.querySelectorAll('.sortable-item')).map(item => ({
+            title: item.querySelector('.item-title').value,
+            description: item.querySelector('.item-desc').value
+        }));
+        let sectionHTML = `
+            <div class="section">
+                <h2 class="section-title">${sectionName}</h2>
+                ${items.map(item => `
+                    <div class="item">
+                        <h3>${item.title}</h3>
+                        <p>${item.description.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        resumeSectionsContainer.innerHTML += sectionHTML;
+    });
 
     if (showQRCode && linkedin) {
         if (qrCodeInstance) {
@@ -309,8 +431,36 @@ function makeSortable() {
     });
 }
 
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.sortable-item:not(.dragging)')];
+function makeSectionsSortable() {
+    const container = document.getElementById('form-content-sortable');
+    let draggingEle;
+    container.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('form-block')) {
+            draggingEle = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        }
+    });
+    container.addEventListener('dragend', (e) => {
+        if (draggingEle) {
+            draggingEle.classList.remove('dragging');
+            generateResumeContent();
+            saveToLocalStorage();
+        }
+    });
+    container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(container, e.clientY, '.form-block');
+        if (afterElement == null) {
+            container.appendChild(draggingEle);
+        } else {
+            container.insertBefore(draggingEle, afterElement);
+        }
+    });
+}
+
+function getDragAfterElement(container, y, selector = '.sortable-item') {
+    const draggableElements = [...container.querySelectorAll(`${selector}:not(.dragging)`)];
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
@@ -324,12 +474,18 @@ function getDragAfterElement(container, y) {
 
 // Local Storage & LinkedIn Import
 function saveToLocalStorage() {
+    const sectionOrder = Array.from(document.querySelectorAll('#form-content-sortable .form-block')).map(section => section.dataset.sectionType);
     const formData = {
+        sectionOrder: sectionOrder,
         name: document.getElementById('name').value,
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
         address: document.getElementById('address').value,
         linkedin: document.getElementById('linkedin').value,
+        socialMedia: Array.from(document.querySelectorAll('#social-media-fields .social-media-item')).map(entry => ({
+            platform: entry.querySelector('.platform').value,
+            url: entry.querySelector('.social-url').value
+        })),
         education: Array.from(document.querySelectorAll('#education-fields .sortable-item')).map(entry => ({
             degree: entry.querySelector('.degree').value,
             institute: entry.querySelector('.institute').value,
@@ -340,6 +496,13 @@ function saveToLocalStorage() {
             role: entry.querySelector('.role').value,
             duration: entry.querySelector('.duration').value,
             desc: entry.querySelector('.work-desc').value
+        })),
+        customSections: Array.from(document.querySelectorAll('#custom-sections-container .form-block')).map(section => ({
+            name: section.querySelector('h2').innerText,
+            items: Array.from(section.querySelectorAll('.sortable-item')).map(item => ({
+                title: item.querySelector('.item-title').value,
+                description: item.querySelector('.item-desc').value
+            }))
         })),
         skills: skills,
         profilePic: profilePicSrc,
@@ -360,15 +523,29 @@ function loadFromLocalStorage() {
         document.getElementById('phone').value = data.phone || '';
         document.getElementById('address').value = data.address || '';
         document.getElementById('linkedin').value = data.linkedin || '';
+
+        document.getElementById('social-media-fields').innerHTML = '';
+        if (data.socialMedia) data.socialMedia.forEach(addSocialMedia);
         
         document.getElementById('education-fields').innerHTML = '';
         if (data.education) data.education.forEach(addEducation);
         
         document.getElementById('experience-fields').innerHTML = '';
         if (data.experience) data.experience.forEach(addExperience);
+
+        document.getElementById('custom-sections-container').innerHTML = '';
+        if (data.customSections) data.customSections.forEach(addCustomSection);
         
         skills = data.skills || [];
         renderSkills();
+
+        if (data.sectionOrder) {
+            const container = document.getElementById('form-content-sortable');
+            data.sectionOrder.forEach(sectionType => {
+                const section = container.querySelector(`[data-section-type="${sectionType}"]`);
+                if(section) container.appendChild(section);
+            });
+        }
         
         profilePicSrc = data.profilePic || 'assets/sample-profile.jpg';
         document.getElementById('profile-pic-preview').src = profilePicSrc;
