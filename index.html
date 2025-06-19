@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastCV - AI-Powered Live Resume Builder</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Form Section -->
+        <div class="form-section">
+            <div class="header">
+                <div class="logo">
+                    <i class="fas fa-file-alt"></i>
+                    <h1>FastCV</h1>
+                </div>
+                <div class="theme-switcher">
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-content">
+                <!-- Personal Info -->
+                <div class="form-block">
+                    <h2><i class="fas fa-user"></i> Personal Info</h2>
+                    <div class="linkedin-import">
+                        <label for="linkedin-json-upload" class="upload-btn linkedin-btn"><i class="fab fa-linkedin"></i> Import from LinkedIn Data</label>
+                        <input type="file" id="linkedin-json-upload" accept=".zip" onchange="handleLinkedInImport(event)">
+                    </div>
+                    <div class="profile-pic-container">
+                        <img id="profile-pic-preview" src="assets/sample-profile.jpg" alt="Profile Picture">
+                        <input type="file" id="profile-pic-upload" accept="image/*" onchange="previewProfilePic(event)">
+                        <label for="profile-pic-upload" class="upload-btn"><i class="fas fa-camera"></i> Upload Photo</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="name" placeholder="Name" required>
+                        <span class="error-message"></span>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="email" placeholder="Email" required>
+                        <span class="error-message"></span>
+                    </div>
+                    <input type="tel" id="phone" placeholder="Phone">
+                    <input type="text" id="address" placeholder="Address">
+                    <input type="url" id="linkedin" placeholder="LinkedIn Profile or Website URL">
+                </div>
+
+                <!-- Education -->
+                <div class="form-block">
+                    <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+                    <div id="education-fields" class="sortable-list"></div>
+                    <button type="button" class="add-btn" onclick="addEducation()"><i class="fas fa-plus"></i> Add Education</button>
+                </div>
+
+                <!-- Work Experience -->
+                <div class="form-block">
+                    <h2><i class="fas fa-briefcase"></i> Work Experience</h2>
+                    <div id="experience-fields" class="sortable-list"></div>
+                    <button type="button" class="add-btn" onclick="addExperience()"><i class="fas fa-plus"></i> Add Experience</button>
+                </div>
+
+                <!-- Skills -->
+                <div class="form-block">
+                    <h2><i class="fas fa-cogs"></i> Skills</h2>
+                    <div class="skills-container">
+                        <input type="text" id="skills-input" placeholder="Add a skill and press Enter">
+                        <div id="skills-tags"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <div class="preview-controls">
+                <div class="control-group">
+                    <span>Template:</span>
+                    <div class="template-selector">
+                        <button class="template-btn active" onclick="changeTemplate('default')">Default</button>
+                        <button class="template-btn" onclick="changeTemplate('modern')">Modern</button>
+                        <button class="template-btn" onclick="changeTemplate('creative')">Creative</button>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <span>Accent Color:</span>
+                    <div class="color-picker-wrapper">
+                        <input type="color" id="color-picker" value="#007bff">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="qr-toggle" class="qr-toggle-label">
+                        <input type="checkbox" id="qr-toggle">
+                        <i class="fas fa-qrcode"></i> Show QR Code
+                    </label>
+                </div>
+                <button class="download-btn" onclick="downloadPDF()"><i class="fas fa-download"></i> Download PDF</button>
+            </div>
+            <div id="resume-template-wrapper">
+                <div id="resume-template" class="resume-default">
+                    <!-- Resume content will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs@0.0.2/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
